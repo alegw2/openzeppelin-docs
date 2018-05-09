@@ -31,7 +31,7 @@ because smart contract security [is hard](https://twitter.com/lopp/status/989151
 1. [Ethereum basics](ethereum-basics.md) explains the Ethereum Virtual Machine and gas.
 2. [Setting up your test environment](test-environment.md) introduces testrpc and Truffle.
 3. [Writing your first contract](first-contract.md) gets you to code, interact with, and deploy Proof Of Existence, a neat application of smart contracts.
-4. [Writing a secure contract](secure-contract.md) introduces you to vulnerabilities in your Proof Of Existence code and discusses best practices to avoid them.
+4. [Writing a secure contract](secure-contract.md) teaches you how vulnerabilities can easily creep in your code.
 
 
 ## Smart Contract Security Reference
