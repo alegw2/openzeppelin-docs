@@ -3,24 +3,26 @@ id: test-environment
 title: Setting up your test environment
 ---
 
-To start developing Ethereum apps (or DApps, for decentralized applications, as
-many people like to call them), you’ll need a client to connect to the network.
+To start developing Ethereum apps (or DApps, for decentralized applications),
+you’ll need a client to connect to the network.
 It will act as your window to the distributed network, and provide a view of
 the blockchain, where all the EVM state is represented.
 
-There are various compatible clients for the protocol, the most popular being
-geth, a Go language implementation. However, it’s not the most
-developer-friendly. The best option I’ve found is the
-[testrpc](https://github.com/ethereumjs/testrpc) node (yes, the
-name sucks). Trust me, it will save you a lot of time. Install it and run it
-(you may need to prepend `sudo` depending on your setup):
+There are various compatible clients for the protocol, At OpenZeppelin, we've found
+[testrpc](https://github.com/ethereumjs/testrpc) to be the most
+developer-friendly option (rather than the slightly more popular `geth`).
+Install it and run it – you may need to prepend `sudo` depending on your setup:
 
 ```sh
 npm install -g ethereumjs-testrpc
 testrpc
 ```
 
-You should run testrpc in a new terminal and leave it running while you develop. Each time you run testrpc, it will generate 10 new addresses with simulated test funds for you to use. This is not real money and you’re safe to try anything with no risk of losing funds.
+You should run testrpc in a new terminal and leave it running while you
+develop. Each time you run testrpc, it will generate 10 new addresses with
+simulated test funds for you to use. This is not real money and you’re safe to
+try anything with no risk of losing funds. `testrp` state is volatile – every time you close it, 
+the state of your node and accounts will be cleared.
 
 The most popular language for writing smart contracts in Ethereum is
 [Solidity](https://solidity.readthedocs.io/en/latest/), so we’ll be using that.

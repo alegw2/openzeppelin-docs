@@ -18,7 +18,6 @@ until you can comfortably answer:
 - what public and private keys are
 - why a blockchain needs miners
 - how decentralized consensus is reached
-- what transaction scripting is
 
 Then move on to the quick [Ethereum basics](ethereum-basics.md)
 section. After these two primers, you can get hands-on with the code and deploy
@@ -28,11 +27,11 @@ Be sure to come back periodically to the [smart contract security reference](pri
 because smart contract security [is hard](https://twitter.com/lopp/status/989151422800330754).
 
 0. [Cryptocurrency basics](cryptocurrency-basics.md) links to top resources on public key cryptography and blockchains.
-1. [Ethereum basics](ethereum-basics.md) explains the Ethereum Virtual Machine and gas.
-2. [Setting up your test environment](test-environment.md) introduces testrpc and Truffle.
+1. [Ethereum basics](ethereum-basics.md) explains the Ethereum Virtual Machine, gas, transactions, and other concepts related to this blockchain.
+2. [Setting up your test environment](test-environment.md) introduces `testrpc` and Truffle.
 3. [Writing your first contract](first-contract.md) gets you to code, interact with, and deploy Proof Of Existence, a neat application of smart contracts.
 4. [Writing a secure contract](secure-contract.md) teaches you how vulnerabilities can easily creep in your code.
-
+5. [Using web3](using-web3.md) walks you through to interacting with Ethereum and smart contracts from a web dapp.
 
 ## Smart Contract Security Reference
 

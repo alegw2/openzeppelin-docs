@@ -8,9 +8,10 @@ organizations taking advantage of good [code patterns](code-patterns.md).
 
 > New to smart contract development? Read our [step-by-step guide](start-here.md).
 
-The OpenZeppelin community is focused on providing short, secure smart contracts and that serve as building blocks for complex
+The OpenZeppelin community is focused on providing short, secure smart contracts that serve as building blocks for complex
 decentralized applications. Our contracts have been widely reviewed and safely manage millions of dollars' worth
 of digital assets every day. 
+
 
 ## Quick Start
 
