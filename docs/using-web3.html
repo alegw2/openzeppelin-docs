@@ -1,0 +1,280 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Using web3 · OpenZeppelin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta property="og:title" content="Using web3 · OpenZeppelin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://openzeppelin.org/index.html"/><meta property="og:description" content="## Simple ETH transfers"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,200,300,400,500,700,400italic,700italic"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible doc"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/logo-zeppelin.png" alt="OpenZeppelin"/><h2 class="headerTitle">OpenZeppelin</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/start-here.html" target="_self">Get Started</a></li><li class=""><a href="https://github.com/OpenZeppelin/openzeppelin-solidity/" target="_self">GitHub</a></li><li class=""><a href="https://openzeppelin.org/api/docs/crowdsale_Crowdsale.html" target="_self">Code Reference</a></li><li class=""><a href="https://zeppelinos.org/" target="_self">ZeppelinOS</a></li><li class=""><a href="https://slack.openzeppelin.org/" target="_self">Chat</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>STEP-BY-STEP GUIDE FOR DEVELOPERS</span></h2></div><div class="navGroups"><div class="navGroup navGroupActive"><h3>OPENZEPPELIN</h3><ul><li class="navListItem"><a class="navItem" href="/docs/about-openzeppelin.html">About OpenZeppelin</a></li></ul></div><div class="navGroup navGroupActive"><h3>STEP-BY-STEP GUIDE FOR DEVELOPERS</h3><ul><li class="navListItem"><a class="navItem" href="/docs/start-here.html">Start here</a></li><li class="navListItem"><a class="navItem" href="/docs/cryptocurrency-basics.html">Cryptocurrency basics</a></li><li class="navListItem"><a class="navItem" href="/docs/ethereum-basics.html">Ethereum basics</a></li><li class="navListItem"><a class="navItem" href="/docs/test-environment.html">Setting up your test environment</a></li><li class="navListItem"><a class="navItem" href="/docs/first-contract.html">Writing your first contract</a></li><li class="navListItem"><a class="navItem" href="/docs/secure-contract.html">Writing a secure contract</a></li><li class="navListItem navListItemActive"><a class="navItem navItemActive" href="/docs/using-web3.html">Using web3</a></li><li class="navListItem"><a class="navItem" href="/docs/next-steps.html">Next Steps</a></li></ul></div><div class="navGroup navGroupActive"><h3>SECURITY REFERENCE</h3><ul><li class="navListItem"><a class="navItem" href="/docs/principles.html">Principles</a></li><li class="navListItem"><a class="navItem" href="/docs/code-patterns.html">Code patterns</a></li><li class="navListItem"><a class="navItem" href="/docs/system-architecture.html">System architecture</a></li><li class="navListItem"><a class="navItem" href="/docs/vulnerabilities.html">Types of vulnerabilities</a></li></ul></div></div></section></div><script>
+          var toggler = document.getElementById('navToggler');
+          var nav = document.getElementById('docsNav');
+          toggler.onclick = function() {
+            nav.classList.toggle('docsSliderActive');
+          };
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1>Using web3</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="simple-eth-transfers"></a><a href="#simple-eth-transfers" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Simple ETH transfers</h2>
+<p>We'll build a simple web app to send ether from one account to another.</p>
+<blockquote>
+<p>You should have <code>testrpc</code> already installed. No?
+We strongly recommend not to skip steps on this guide to make the most of it.
+Learn about <a href="/docs/test-environment.html">properly setting up a test environment here</a>.
+If you're only interested in interacting with ether on the web without building
+smart contracts, you can keep reading below – just run <code>npm install -g ethereumjs-testrpc</code>.</p>
+</blockquote>
+<p>Go into a new folder and run a <code>testrpc</code> node.</p>
+<pre><code class="hljs"><span class="hljs-built_in">mkdir</span> webapp
+<span class="hljs-built_in">cd</span> webapp
+testrpc
+</code></pre>
+<p>Running <code>testrpc</code> will create 10 addresses with fake ether by default. You make a custom
+initialization by <a href="https://github.com/trufflesuite/ganache-cli#usage">following the documentation</a>.
+It’s important to mention that the <code>testrpc</code> state is volatile, that is every time you
+close it, the state of your node and accounts will be cleared.</p>
+<p><a href="https://github.com/ethereum/wiki/wiki/JavaScript-API">web3.js</a> is a a
+JavaScript library that implements the Ethereum JSON RPC. That is, the protocol
+that we will use to talk to an Ethereum node (in this case, testrpc). To
+install it, just run:</p>
+<pre><code class="hljs"><span class="hljs-selector-tag">npm</span> <span class="hljs-selector-tag">install</span> <span class="hljs-selector-tag">-g</span> <span class="hljs-selector-tag">web3</span>@<span class="hljs-keyword">0</span>.<span class="hljs-keyword">20</span>.<span class="hljs-keyword">1</span>
+</code></pre>
+<p>For this exercise, make sure to install a 0.20.x version, not the 1.0.0 beta.</p>
+<p>You need to connect <code>web3</code> with your local <code>testrpc</code> node by asking <code>web3</code> to use
+a <code>localhost</code> provider. Let’s open a node console and input following lines:</p>
+<pre><code class="hljs"><span class="hljs-attr">Web3</span> = require(<span class="hljs-string">'web3'</span>)
+<span class="hljs-attr">provider</span> = new Web3.providers.HttpProvider(<span class="hljs-string">"http://localhost:8545"</span>)
+<span class="hljs-attr">web3</span> = new Web3(provider)
+</code></pre>
+<p>Please note that we are using the default <code>testrpc</code> port (8545), if you set
+another one, remember to change the provider URL too. Once you have your <code>web3</code>
+instance, start by getting the list of accounts you have in your Ethereum node,
+with their respective balance, by running the following:</p>
+<pre><code class="hljs">web3.eth.accounts.forEach(account =&gt; {
+  <span class="hljs-built_in">balance</span> = web3.eth.getBalance(account);
+  console.<span class="hljs-built_in">log</span>(<span class="hljs-built_in">balance</span>);
+})
+</code></pre>
+<blockquote>
+<p>You probably noticed that the output is not exactly a list of numbers, that’s
+because Web3 uses BigNumber objects for number values, since JavaScript is not
+able to handle big numbers correctly. You can read more about this
+<a href="https://github.com/ethereum/wiki/wiki/JavaScript-API#a-note-on-big-numbers-in-web3js">here</a>.</p>
+</blockquote>
+<blockquote>
+<p>You should also know that these balances are not expressed in ETH, but in
+wei, where 1 ETH = 10¹⁸ wei. Read the Ethereum documentation to learn more
+about ETH standard units.</p>
+</blockquote>
+<p>Let’s try to send ETH between two accounts.  Just type <code>web3.eth.accounts</code> and pick two of those.
+Then you can use the <code>sendTransaction</code> method:</p>
+<pre><code class="hljs">from = web3<span class="hljs-selector-class">.eth</span><span class="hljs-selector-class">.accounts</span>[<span class="hljs-number">0</span>]
+to = web3<span class="hljs-selector-class">.eth</span><span class="hljs-selector-class">.accounts</span>[<span class="hljs-number">1</span>]
+transaction = { from: from, to: to, value: <span class="hljs-number">100000</span> }
+transactionHash = web3<span class="hljs-selector-class">.eth</span><span class="hljs-selector-class">.sendTransaction</span>(transaction)
+</code></pre>
+<p>That output is the transaction hash, and you can get the transaction
+information with the method <code>web3.eth.getTransaction(transactionHash)</code></p>
+<p>You may also want to check that the balances of the accounts that you used have
+changed. You can validate that with the following commands:</p>
+<pre><code class="hljs">web3.eth.accounts.forEach(account =&gt; {
+  <span class="hljs-built_in">balance</span> = web3.eth.getBalance(account);
+  console.<span class="hljs-built_in">log</span>(<span class="hljs-built_in">balance</span>);
+})
+</code></pre>
+<p>We built a simple UI using HTML and jQuery with a little bit of Bootstrap
+just to make it pretty. You can take a look at it in
+<a href="https://github.com/facuspagnuolo/ethereum-spiking/tree/master/1-interacting-with-the-blockchain">this repo</a>.
+This is what we call a DApp, or decentralized application: part of the backend code runs on a
+decentralized peer-to-peer network (in this case, the Ethereum blockchain).</p>
+<p><img src="/docs/assets/web3-dapp1.png" alt="A screenshot of the ETH transfers Dapp UI"></p>
+<p>You will find an <code>index.html</code> file for the UI, and an <code>app.js</code> file hosting the
+interaction with the Ethereum node – basically what we described above
+in addition to jQuery callbacks to populate the UI.</p>
+<h2><a class="anchor" aria-hidden="true" id="crowdfunding-dapp-with-smart-contracts"></a><a href="#crowdfunding-dapp-with-smart-contracts" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crowdfunding Dapp with smart contracts</h2>
+<p>Projects do a crowdfunding campaign in order to raise funds to carry out a
+project. You can issue a digital asset related to your project and immediately
+sell it to anyone in the world, for almost zero cost. This is what we call an
+Initial Coin Offering (ICO).</p>
+<p>To carry out an ICO with smart contracts, you just need to implement the logic
+that makes your digital assets tradable and valuable. Sounds great, doesn’t it?
+These are Ethereum tokens. A token is a digital asset within the Ethereum
+ecosystem.</p>
+<p>Let’s try to analyze all these ideas through an example.</p>
+<p>Suppose you have health food company that wants to launch a new brand. You
+decide to conduct an ICO to raise 20,000 ETH. You offer 10 tokens in return for
+every 1 ETH you collect, promising that contributors will be able to buy food
+at your stores with the tokens. To do this, you can develop a token smart
+contract that stores the proportional amount of tokens for each contributor.</p>
+<p>Now, let’s suppose you raised that money, developed your project, and opened
+your first store. Then, you decide to sell each salad for 1 token. After a
+week, it turns out that you have an increasing demand, but given that the
+supply of salads is limited, your customers notice and start trading your
+tokens as an asset, raising their market value.</p>
+<p>This process has been carried out in real life, given Ethereum allows virtually
+anyone to create their own tradeable, digital asset.</p>
+<h3><a class="anchor" aria-hidden="true" id="the-smart-contract"></a><a href="#the-smart-contract" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>The smart contract</h3>
+<p>Look at the following code that could power a crowdfunding campaign.</p>
+<blockquote>
+<p>Please know that this examples are just for learning purposes, you should not use them in production.</p>
+</blockquote>
+<pre><code class="hljs">pragma solidity ^<span class="hljs-number">0</span>.<span class="hljs-number">4</span>.<span class="hljs-number">0</span><span class="hljs-comment">;</span>
+contract MyToken {
+ <span class="hljs-keyword">address </span>public creator<span class="hljs-comment">;</span>
+ uint256 public totalSupply<span class="hljs-comment">;</span>
+ mapping (<span class="hljs-keyword">address </span>=&gt; uint256) public <span class="hljs-keyword">balances;
+</span>function MyToken() public {
+   creator = msg.sender<span class="hljs-comment">;</span>
+   totalSupply = <span class="hljs-number">10000</span><span class="hljs-comment">;</span>
+   <span class="hljs-keyword">balances[creator] </span>= totalSupply<span class="hljs-comment">;</span>
+}
+ function <span class="hljs-keyword">balanceOf(address </span>owner) public constant returns(uint256){
+   return <span class="hljs-keyword">balances[owner];
+</span> }
+ 
+ function sendTokens(<span class="hljs-keyword">address </span>receiver, uint256 amount) 
+ public returns(<span class="hljs-keyword">bool){
+</span>   <span class="hljs-keyword">address </span>owner = msg.sender<span class="hljs-comment">;</span>
+   
+   require(amount &gt; <span class="hljs-number">0</span>)<span class="hljs-comment">;</span>
+   require(<span class="hljs-keyword">balances[owner] </span>&gt;= amount)<span class="hljs-comment">;</span>
+   
+   <span class="hljs-keyword">balances[owner] </span>-= amount<span class="hljs-comment">;</span>
+   <span class="hljs-keyword">balances[receiver] </span>+= amount<span class="hljs-comment">;</span>
+   return true<span class="hljs-comment">;</span>
+ }
+}
+</code></pre>
+<p>Let's walk through the code.  The <code>pragma</code> keyword tells which version of
+Solidity you are using for your source code. Then, it begins the contract
+definition initiating with its name, in this case, MyToken. Next, you will find
+three variables:</p>
+<ul>
+<li><code>creator</code> is an address variable to store the owner of the contract.</li>
+<li><code>totalSupply</code> is an 256 bit unsigned int to store the amount of tokens willing to be shared with the investors</li>
+<li><code>balances</code> is a map from addresses to unsigned ints where the balances of each investor will be stored</li>
+</ul>
+<p>Afterwards, you will find the constructor function. As you can see, it is a
+function with the same name of the contract, and it will be called only once
+every time a new instance of the contract is deployed to the network. Here is
+where the owner of the contract gets stored. Since every function call is a
+transaction, it is possible to know the owner of the contract using the sender
+of the transaction, that is msg.sender. Finally, the contract defines a total
+supply of 10,000 tokens, and assigns it to the token creator.</p>
+<p>The next function is an easy one: balanceOf simply tells you the balance of an
+address received by parameter. Maybe you are wondering what the constant
+keyword means. Well that’s because Solidity has two kinds of functions,
+constants and non-constant.</p>
+<p>Non-constant functions perform state changes. On the other hand, constant
+functions are read only once, meaning those don’t perform any state changes,
+they just read data. Actually, there are two types of constant functions:</p>
+<ul>
+<li>view declared functions promise not to modify the state (alias to constant)</li>
+<li>pure declared functions promise not to read from or modify the state</li>
+</ul>
+<p>The last function is the one that allows us to trade tokens between addresses.
+This is a non-constant or transactional function because you will be changing
+balances. It expects the receiver’s address and the amount of tokens you want
+to transfer by parameter, and it returns a boolean representing whether the
+transaction has been successfully executed or not. You can skip the first line,
+it is just keeping the sender of the function in the owner variable.</p>
+<p>Next, you will find two preconditions:</p>
+<pre><code class="hljs"><span class="hljs-keyword">...</span>
+<span class="hljs-keyword">require</span>(amount &gt; <span class="hljs-number">0</span>);
+<span class="hljs-keyword">require</span>(balances[owner] &gt;= amount);
+<span class="hljs-keyword">...</span>
+</code></pre>
+<p>require is one of the methods that you can use to check conditions or make
+validations. It will eval a condition and revert in case that condition is not
+met. So, in this case, it is requiring that the amount of tokens to be
+transferred is greater than zero, and ensuring the sender has enough balance to
+send that amount.</p>
+<p>Finally, you are subtracting the required amount of tokens from the owner’s
+balance and adding it to the receiver’s balance:</p>
+<pre><code class="hljs">...
+ <span class="hljs-keyword">balances[owner] </span>-= amount<span class="hljs-comment">;</span>
+ <span class="hljs-keyword">balances[receiver] </span>+= amount<span class="hljs-comment">;</span>
+ return true<span class="hljs-comment">;</span>
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="deploying-the-smart-contract"></a><a href="#deploying-the-smart-contract" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Deploying the smart contract</h3>
+<p>Now, let’s start playing with our contract! You will need to deploy our
+contract to the network first. To do that, you will use a Solidity compiler for
+node.js called solc. You can install it by running:</p>
+<pre><code class="hljs">npm <span class="hljs-keyword">install</span> -g solc
+</code></pre>
+<p>Create a file called <code>MyToken.sol</code>, and paste the contract code into it. Then,
+open a terminal console in the same dir where you placed that file. First,
+compile it running the following command:</p>
+<pre><code class="hljs">solcjs MyToken<span class="hljs-selector-class">.sol</span> --bin
+</code></pre>
+<p>The compiler will create a MyToken_sol_MyToken.bin file with the output. You
+can check that file contains just bytecode. Next, you will need to use solc to
+build the ABI (Application Binary Interface), an interface or template of your
+contract that tells you the available methods of it. This is the point of
+contact with Web3. Your just need to run:</p>
+<pre><code class="hljs">solcjs MyToken<span class="hljs-selector-class">.sol</span> --abi
+</code></pre>
+<p>Then, you will see a new file called MyToken_sol_MyToken.abi with a JSON
+content that bassically defines the interface of your contract.</p>
+<p>Finally you just need to deploy your contract from a node.js console using
+testrpc running in background. Once you have done that, let’s initialize web3:</p>
+<pre><code class="hljs"><span class="hljs-comment">//instance web3</span>
+Web3 = require(<span class="hljs-string">'web3'</span>)
+provider = <span class="hljs-keyword">new</span> <span class="hljs-type">Web3</span>.providers.HttpProvider(<span class="hljs-string">"http://localhost:8545"</span>)
+web3 = <span class="hljs-keyword">new</span> <span class="hljs-type">Web3</span>(provider)
+</code></pre>
+<p>Web3 gives you the possibility to parse your contract ABI and provide a
+JavaScript API to interact with it. Then, you just need the bytecode to deploy
+a new instance of that contract to testrpc. Please follow the next commands:</p>
+<pre><code class="hljs">// load files
+myTokenABIFile = fs.readFileSync('MyToken_sol_MyToken.abi')
+myTokenABI  = JSON.parse(myTokenABIFile.toString())
+myTokenBINFile = fs.readFileSync('MyToken_sol_MyToken.bin')
+myTokenByteCode = myTokenBINFile.toString()
+//deploy
+account = web3.eth.accounts[0]
+MyTokenContract = web3.eth.contract(myTokenABI)
+contractData = { data: myTokenByteCode, from: account, gas: 999999 }
+deployedContract = MyTokenContract.new(contractData)
+</code></pre>
+<p>Finally, you can check the address of your new deployed contract by calling
+deployedContract.address. Please save that address because you will need it to
+interact with your contract.</p>
+<h3><a class="anchor" aria-hidden="true" id="interacting-with-web3"></a><a href="#interacting-with-web3" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Interacting with web3</h3>
+<p>Let’s begin by searching the token balances of your testrpc accounts. To do so,
+you will need to access the instance of your deployed contract first:</p>
+<pre><code class="hljs">contractAddress = deployedContract<span class="hljs-selector-class">.address</span>
+instance = MyTokenContract.at(contractAddress)
+web3<span class="hljs-selector-class">.eth</span><span class="hljs-selector-class">.accounts</span><span class="hljs-selector-class">.forEach</span>(<span class="hljs-selector-tag">address</span> =&gt; {
+ tokens = instance<span class="hljs-selector-class">.balanceOf</span><span class="hljs-selector-class">.call</span>(address)
+ console.log(<span class="hljs-selector-tag">address</span> + <span class="hljs-string">": "</span> + tokens)
+})
+</code></pre>
+<p>You will notice that your first account is the one that owns the total supply,
+which is expected. Great! Next, let’s transfer some of those tokens to another
+account:</p>
+<pre><code class="hljs"><span class="hljs-comment">// send tokens</span>
+amount = <span class="hljs-number">10</span>
+from = web3<span class="hljs-selector-class">.eth</span><span class="hljs-selector-class">.accounts</span>[<span class="hljs-number">0</span>]
+to = web3<span class="hljs-selector-class">.eth</span><span class="hljs-selector-class">.accounts</span>[<span class="hljs-number">1</span>]
+transactionHash = instance.sendTokens(to, amount, { from: from })
+<span class="hljs-comment">// checkout balances again</span>
+web3<span class="hljs-selector-class">.eth</span><span class="hljs-selector-class">.accounts</span><span class="hljs-selector-class">.forEach</span>(<span class="hljs-selector-tag">address</span> =&gt; {
+ tokens = instance<span class="hljs-selector-class">.balanceOf</span><span class="hljs-selector-class">.call</span>(address)
+ console.log(<span class="hljs-selector-tag">address</span> + <span class="hljs-string">": "</span> + tokens)
+})
+</code></pre>
+<p>You should see that now the second address has 10 tokens! And you can also
+search for the transaction information as you did in the first part of this
+guide:</p>
+<pre><code class="hljs">web3<span class="hljs-selector-class">.eth</span><span class="hljs-selector-class">.getTransaction</span>(transactionHash)
+</code></pre>
+<p>I also built a simple UI for this mini DApp, you can
+<a href="https://github.com/facuspagnuolo/ethereum-spiking/tree/master/2-interacting-with-a-contract">find it here</a>.
+You will see a MyToken.json file that holds the ABI of our contract. I just pasted the
+content of the ABI generated by the solidity compiler into it. You will also
+find an app.js file similar to the previous app, but including the logic that I
+just showed you to send tokens and detailed token balances of your accounts.</p>
+<p><img src="/docs/assets/web3-dapp1.png" alt="A screenshot of the crowdfunding Dapp UI"></p>
+<blockquote>
+<p>The token described in this article is not ERC20 compliant to reduce the new term overload. If you don’t know what an ERC20 compliant token is, we’ll explain it in the next article.</p>
+</blockquote>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="secure-contract.html">← Writing a secure contract</a><a class="docs-next button" href="next-steps.html">Next Steps →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/symbol-zeppelin.png" alt="OpenZeppelin" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" href="https://github.com/OpenZeppelin/zeppelin-solidity" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Smart Contract Solutions</section></footer></div><script>
+              (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+              })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+              ga('create', 'UA-85043059-1', 'auto');
+              ga('send', 'pageview');
+            </script></body></html>

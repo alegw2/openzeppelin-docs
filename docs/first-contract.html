@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Writing your first contract · OpenZeppelin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta property="og:title" content="Writing your first contract · OpenZeppelin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://openzeppelin.org/index.html"/><meta property="og:description" content="We’ll be writing a simple Proof of Existence smart contract. The idea is to"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,200,300,400,500,700,400italic,700italic"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible doc"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/logo-zeppelin.png" alt="OpenZeppelin"/><h2 class="headerTitle">OpenZeppelin</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/start-here.html" target="_self">Get Started</a></li><li class=""><a href="https://github.com/OpenZeppelin/openzeppelin-solidity/" target="_self">GitHub</a></li><li class=""><a href="https://openzeppelin.org/api/docs/crowdsale_Crowdsale.html" target="_self">Code Reference</a></li><li class=""><a href="https://zeppelinos.org/" target="_self">ZeppelinOS</a></li><li class=""><a href="https://slack.openzeppelin.org/" target="_self">Chat</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>STEP-BY-STEP GUIDE FOR DEVELOPERS</span></h2></div><div class="navGroups"><div class="navGroup navGroupActive"><h3>OPENZEPPELIN</h3><ul><li class="navListItem"><a class="navItem" href="/docs/about-openzeppelin.html">About OpenZeppelin</a></li></ul></div><div class="navGroup navGroupActive"><h3>STEP-BY-STEP GUIDE FOR DEVELOPERS</h3><ul><li class="navListItem"><a class="navItem" href="/docs/start-here.html">Start here</a></li><li class="navListItem"><a class="navItem" href="/docs/cryptocurrency-basics.html">Cryptocurrency basics</a></li><li class="navListItem"><a class="navItem" href="/docs/ethereum-basics.html">Ethereum basics</a></li><li class="navListItem"><a class="navItem" href="/docs/test-environment.html">Setting up your test environment</a></li><li class="navListItem navListItemActive"><a class="navItem navItemActive" href="/docs/first-contract.html">Writing your first contract</a></li><li class="navListItem"><a class="navItem" href="/docs/secure-contract.html">Writing a secure contract</a></li><li class="navListItem"><a class="navItem" href="/docs/using-web3.html">Using web3</a></li><li class="navListItem"><a class="navItem" href="/docs/next-steps.html">Next Steps</a></li></ul></div><div class="navGroup navGroupActive"><h3>SECURITY REFERENCE</h3><ul><li class="navListItem"><a class="navItem" href="/docs/principles.html">Principles</a></li><li class="navListItem"><a class="navItem" href="/docs/code-patterns.html">Code patterns</a></li><li class="navListItem"><a class="navItem" href="/docs/system-architecture.html">System architecture</a></li><li class="navListItem"><a class="navItem" href="/docs/vulnerabilities.html">Types of vulnerabilities</a></li></ul></div></div></section></div><script>
+          var toggler = document.getElementById('navToggler');
+          var nav = document.getElementById('docsNav');
+          toggler.onclick = function() {
+            nav.classList.toggle('docsSliderActive');
+          };
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1>Writing your first contract</h1></header><article><div><span><p>We’ll be writing a simple Proof of Existence smart contract. The idea is to
+create a digital notary that stores hashes of documents as proofs of their
+existence. Using Truffle:</p>
+<pre><code class="hljs css sh">truffle create contract ProofOfExistence1
+</code></pre>
+<p>Now open <code>contracts/ProofOfExistence1.sol</code> in your favorite text editor (I use
+vim with Solidity syntax highlighting), and paste this initial version of the
+code:</p>
+<pre><code class="hljs">pragma solidity ^<span class="hljs-number">0.4</span><span class="hljs-number">.15</span>;
+<span class="hljs-comment">// Proof of Existence contract, version 1</span>
+contract ProofOfExistence1 {
+  <span class="hljs-comment">// state</span>
+  bytes32 <span class="hljs-keyword">public</span> proof;
+  <span class="hljs-comment">// calculate and store the proof for a document</span>
+  <span class="hljs-comment">// *transactional function*</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">notarize</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> <span class="hljs-built_in">document</span></span>) </span>{
+    proof = proofFor(<span class="hljs-built_in">document</span>);
+  }
+  <span class="hljs-comment">// helper function to get a document's sha256</span>
+  <span class="hljs-comment">// *read-only function*</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">proofFor</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> <span class="hljs-built_in">document</span></span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bytes32</span>) </span>{
+    <span class="hljs-keyword">return</span> sha256(<span class="hljs-built_in">document</span>);
+  }
+}
+</code></pre>
+<p>We’ll start with something simple but incorrect and move towards a better
+solution. This is a definition of a Solidity contract, which is like a class in
+other programming languages. Contracts have state and functions. It is
+important to distinguish two kinds of functions that can appear in a contract:</p>
+<ul>
+<li><strong>Read-only (constant) functions</strong> don’t perform any state
+changes. They only read state, perform computations, and return values. As
+these functions can be resolved locally by each node, they cost no gas. Marked
+with the keyword <code>constant</code>.</li>
+<li><strong>Transactional functions</strong> perform a state change in the contract or move
+funds. As these changes need to be reflected in the blockchain, transactional
+function execution requires sending a transaction to the network and spending
+gas.</li>
+</ul>
+<p>Our contract above has one of each kind, marked in the documentation. We’ll see
+how the kind of function we’re using with modifies how we interact with the
+smart contract in the next section.</p>
+<p>This simple version only stores one proof at a time, using the data type
+bytes32, or 32 bytes, which is the size of a sha256 hash. The transactional
+function notarize allows one to store the hash of a document in our smart
+contract’s state variable <code>proof</code>. This variable is public, and it's the only way a
+user of our contract has to verify if a document has been notarized. We’ll do
+that ourselves shortly, but first...</p>
+<p>Let’s deploy ProofOfExistence1 to the network! This time, you’ll have to edit
+the migration file (<code>migrations/2_deploy_contracts.js</code>) to make Truffle deploy
+our new contract. Replace the contents with the following:</p>
+<pre><code class="hljs"><span class="hljs-keyword">var</span> ProofOfExistence1 = artifacts.require(<span class="hljs-string">"./ProofOfExistence1.sol"</span>);
+<span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">deployer</span>) </span>{
+  deployer.deploy(ProofOfExistence1);
+};
+</code></pre>
+<p>To make sure this migration runs again, you’ll need to use the <code>reset</code> flag.
+Read more on Truffle migrations <a href="http://truffleframework.com/docs/getting_started/migrations">here</a>.</p>
+<pre><code class="hljs css sh">truffle migrate --reset
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="interacting-with-the-contract"></a><a href="#interacting-with-the-contract" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Interacting with the contract</h2>
+<p>Now that our contract is deployed, let’s play with it! We can send messages to it via function calls and read its public state. We’ll use the Truffle console for that:</p>
+<pre><code class="hljs css sh">$ truffle console
+// get the deployed version of our contract
+truffle(default)&gt; var poe = ProofOfExistence1.at(ProofOfExistence1.address)
+// and <span class="hljs-built_in">print</span> its address 
+truffle(default)&gt; poe.address
+0x3d3bce79cccc331e9e095e8985def13651a86004
+// <span class="hljs-built_in">let</span><span class="hljs-string">'s register our first "document"
+truffle(default)&gt; poe.notarize('</span>An amazing idea<span class="hljs-string">')
+{ tx: '</span>0x18ac...cb1a<span class="hljs-string">',
+  receipt: 
+   { transactionHash: '</span>0x18ac...cb1a<span class="hljs-string">',
+     ...
+   },
+  logs: [] }
+// let'</span>s now get the proof <span class="hljs-keyword">for</span> that document
+truffle(default)&gt; poe.proofFor(<span class="hljs-string">'An amazing idea'</span>)
+0xa3287ff8d1abde95498962c4e1dd2f50a9f75bd8810bd591a64a387b93580ee7
+// To check <span class="hljs-keyword">if</span> the contract<span class="hljs-string">'s state was correctly changed:
+truffle(default)&gt; poe.proof()
+0xa3287ff8d1abde95498962c4e1dd2f50a9f75bd8810bd591a64a387b93580ee7
+// The hash matches the one we previously calculated
+</span></code></pre>
+<p>First thing we do is obtain a representation of our deployed contract and store
+it in a variable called <code>poe</code>.</p>
+<p>We then call the transactional function notarize, which involves a state
+change. When we call a transactional function, we get a Promise that resolves
+to a transaction object, not what the actual function returns. Remember that to
+change the EVM state we need to spend gas and send a transaction to the
+network. That’s why we get a transaction information object as the result of
+the Promise, referring to the transaction that did this state change. In this
+case, we are not interested in the transaction id, so we just discard the
+Promise. When writing a real app, we’ll want to save it to check the resulting
+transaction and catch errors.</p>
+<p>Next, we call the read-only (constant) function proofFor. Remember to mark your
+read-only functions with the keyword constant, or else Truffle will try to
+craft a transaction to execute them. This is a way to tell Truffle that we’re
+not interacting with the blockchain but just reading from it. By using this
+read-only function, we obtain the sha256 hash of the ‘An amazing idea’
+“document”.</p>
+<p>We now need to contrast this with the state of our smart contract. To check if
+the state changed correctly, we need to read the proof public state variable.
+To get the value of a public state variable, we can call a function of the same
+name, which returns a Promise of its value. In our case, the output hash is the
+same, so everything worked as expected :)</p>
+<p>For more info on how to interact with contracts, read this section of the
+Truffle documentation.</p>
+<p>As you can see from the snippet above, our first version of the Proof of
+Existence smart contract seems to be working! Good work! It’s only good for
+registering one document at a time, though. Let’s create a better version.</p>
+<h2><a class="anchor" aria-hidden="true" id="improving-the-code"></a><a href="#improving-the-code" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Improving the code</h2>
+<p>Let’s change the contract to support multiple document proofs. Copy the
+original file with the name contracts/ProofOfExistence2.sol and apply these
+changes. The main changes are: we change the proof variable into a bytes32
+array and call it proofs, we make it private, and we add a function to check if
+a document has already been notarized by iterating that array.</p>
+<pre><code class="hljs">pragma solidity ^<span class="hljs-number">0.4</span><span class="hljs-number">.15</span>;
+<span class="hljs-comment">// Proof of Existence contract, version 2</span>
+contract ProofOfExistence2 {
+  <span class="hljs-comment">// state</span>
+  bytes32[] <span class="hljs-keyword">private</span> proofs;
+  <span class="hljs-comment">// store a proof of existence in the contract state</span>
+  <span class="hljs-comment">// *transactional function*</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">storeProof</span>(<span class="hljs-params">bytes32 proof</span>) </span>{
+    proofs.push(proof);
+  }
+<span class="hljs-comment">// calculate and store the proof for a document</span>
+  <span class="hljs-comment">// *transactional function*</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">notarize</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> <span class="hljs-built_in">document</span></span>) </span>{
+    bytes32 proof = proofFor(<span class="hljs-built_in">document</span>);
+    storeProof(proof);
+  }
+<span class="hljs-comment">// helper function to get a document's sha256</span>
+  <span class="hljs-comment">// *read-only function*</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">proofFor</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> <span class="hljs-built_in">document</span></span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bytes32</span>) </span>{
+    <span class="hljs-keyword">return</span> sha256(<span class="hljs-built_in">document</span>);
+  }
+<span class="hljs-comment">// check if a document has been notarized</span>
+  <span class="hljs-comment">// *read-only function*</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">checkDocument</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> <span class="hljs-built_in">document</span></span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>) </span>{
+    bytes32 proof = proofFor(<span class="hljs-built_in">document</span>);
+    <span class="hljs-keyword">return</span> hasProof(proof);
+  }
+  <span class="hljs-comment">// returns true if proof is stored</span>
+  <span class="hljs-comment">// *read-only function*</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hasProof</span>(<span class="hljs-params">bytes32 proof</span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>) </span>{
+    <span class="hljs-keyword">for</span> (uint256 i = <span class="hljs-number">0</span>; i &lt; proofs.length; i++) {
+      <span class="hljs-keyword">if</span> (proofs[i] == proof) {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+      }
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+}
+</code></pre>
+<p>Let’s interact with the new functions: (remember to update
+<code>migrations/2_deploy_contracts.js</code> to include the new contract and
+run <code>truffle migrate --reset</code>).</p>
+<pre><code class="hljs"><span class="hljs-comment">// deploy contracts</span>
+truffle(<span class="hljs-keyword">default</span>)&gt;  migrate --reset
+<span class="hljs-comment">// Get the new version of the contract</span>
+truffle(<span class="hljs-keyword">default</span>)&gt; <span class="hljs-keyword">var</span> poe = ProofOfExistence2.at(ProofOfExistence2.address)
+<span class="hljs-comment">// let's check for some new document, and it shouldn't be there.</span>
+truffle(<span class="hljs-keyword">default</span>)&gt; poe.checkDocument(<span class="hljs-string">'hello'</span>)
+<span class="hljs-literal">false</span>
+<span class="hljs-comment">// let's now add that document to the proof store</span>
+truffle(<span class="hljs-keyword">default</span>)&gt; poe.notarize(<span class="hljs-string">'hello'</span>)
+{ tx: <span class="hljs-string">'0x1d2d...413f'</span>,
+  receipt: { ... },
+  logs: []
+}
+<span class="hljs-comment">// let's now check again if the document has been notarized!</span>
+truffle(<span class="hljs-keyword">default</span>)&gt; poe.checkDocument(<span class="hljs-string">'hello'</span>)
+<span class="hljs-literal">true</span>
+<span class="hljs-comment">// success!</span>
+<span class="hljs-comment">// we can also store other documents and they are recorded too</span>
+truffle(<span class="hljs-keyword">default</span>)&gt; poe.notarize(<span class="hljs-string">'some other document'</span>);
+truffle(<span class="hljs-keyword">default</span>)&gt; poe.checkDocument(<span class="hljs-string">'some other document'</span>)
+<span class="hljs-literal">true</span>
+</code></pre>
+<p>This version is better than the first, but still has some problems. Note that
+every time we want to check if a document was notarized, we need to iterate
+through all existing proofs. This makes the contract spend more and more gas on
+each check as more documents are added. A better structure to store proofs is a
+map. Luckily, Solidity supports maps, and calls them mappings. Another thing
+we’ll improve in this version is removing all that extra comments marking
+read-only or transactional functions. I think you get it by now :)</p>
+<p>Here’s the final version, which should be pretty easy to understand because you
+followed along previous versions:</p>
+<pre><code class="hljs">pragma solidity ^<span class="hljs-number">0.4</span><span class="hljs-number">.15</span>;
+<span class="hljs-comment">// Proof of Existence contract, version 3</span>
+contract ProofOfExistence3 {
+  mapping (<span class="hljs-function"><span class="hljs-params">bytes32</span> =&gt;</span> bool) <span class="hljs-keyword">private</span> proofs;
+  <span class="hljs-comment">// store a proof of existence in the contract state</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">storeProof</span>(<span class="hljs-params">bytes32 proof</span>) </span>{
+    proofs[proof] = <span class="hljs-literal">true</span>;
+  }
+  <span class="hljs-comment">// calculate and store the proof for a document</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">notarize</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> <span class="hljs-built_in">document</span></span>) </span>{
+    <span class="hljs-keyword">var</span> proof = proofFor(<span class="hljs-built_in">document</span>);
+    storeProof(proof);
+  }
+  <span class="hljs-comment">// helper function to get a document's sha256</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">proofFor</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> <span class="hljs-built_in">document</span></span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bytes32</span>) </span>{
+    <span class="hljs-keyword">return</span> sha256(<span class="hljs-built_in">document</span>);
+  }
+  <span class="hljs-comment">// check if a document has been notarized</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">checkDocument</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> <span class="hljs-built_in">document</span></span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>) </span>{
+    <span class="hljs-keyword">var</span> proof = proofFor(<span class="hljs-built_in">document</span>);
+    <span class="hljs-keyword">return</span> hasProof(proof);
+  }
+  <span class="hljs-comment">// returns true if proof is stored</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hasProof</span>(<span class="hljs-params">bytes32 proof</span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span>(<span class="hljs-params">bool</span>) </span>{
+    <span class="hljs-keyword">return</span> proofs[proof];
+  }
+}
+</code></pre>
+<p>That looks good enough. And it works exactly as the second version. To try it out,
+remember to update the migration file and run <code>truffle migrate --reset</code> again.
+All the code in this tutorial can be found in
+<a href="https://github.com/maraoz/solidity-experiments">this GitHub repo</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="deploying-to-the-testnet"></a><a href="#deploying-to-the-testnet" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Deploying to the testnet</h2>
+<p>Once you’ve tested your contract extensively using testrpc in the simulated
+network, you’re ready to try it in the real network! To do that, we need a real
+testnet/livenet Ethereum client. Follow these instructions to install geth.</p>
+<p>During development, you should run nodes in testnet mode, so that you can test
+everything out without risking real money. Testnet mode (also known as Ropsten)
+is identical to the real Ethereum (mainnet), but the Ether token
+there has no monetary value. Don’t be lazy and remember to always develop in
+testnet mode, <strong>you will regret it if you lose real Ether due to a programming error</strong>
+(trust me on that, hehe).</p>
+<p>Run geth in testnet mode, with RPC server enabled:</p>
+<pre><code class="hljs">geth --testnet --rpc<span class="hljs-built_in"> console </span>2&gt;&gt; geth.log
+</code></pre>
+<p>This will open a console where you can type in basic commands to control your
+node/client. Your node will begin downloading the testnet blockchain, and you
+can check progress by checking eth.blockNumber. While the blockchain is
+downloading, you can still run commands. For example, let’s create an account:
+(remember the password!)</p>
+<pre><code class="hljs">&gt; personal.newAccount()
+<span class="hljs-string">Passphrase:</span>
+Repeat <span class="hljs-string">passphrase:</span>
+<span class="hljs-string">"0xa88614166227d83c93f4c50be37150b9500d51fc"</span>
+</code></pre>
+<p>Let’s send some coins there and check the balance. You can get free testnet
+Ether <a href="https://faucet.metamask.io">here</a>. Just copy-paste the address you just
+generated and this faucet will send you some testnet Ether. To check your balance, run:</p>
+<pre><code class="hljs">&gt; <span class="hljs-selector-tag">eth</span><span class="hljs-selector-class">.getBalance</span>(<span class="hljs-selector-tag">eth</span><span class="hljs-selector-class">.accounts</span><span class="hljs-selector-attr">[0]</span>)
+0
+</code></pre>
+<p>It will show no balance because your node hasn’t synced with the rest of the
+network yet. While you wait for that, check your balance in a testnet block
+explorer. There, you can also see the current testnet highest block number
+(#1819865 at the time of writing), which you can use in combination with
+eth.blockNumber to know when your node has synced completely.</p>
+<p>Once your node has synced, you’re ready to deploy the contracts to the testnet
+using Truffle. First, unlock your main geth account, so that Truffle can use
+it. And be sure that it holds some balance, or you won’t be able to push a new
+contract to the network. On geth run:</p>
+<pre><code class="hljs">&gt; <span class="hljs-selector-tag">personal</span><span class="hljs-selector-class">.unlockAccount</span>(<span class="hljs-selector-tag">eth</span><span class="hljs-selector-class">.accounts</span><span class="hljs-selector-attr">[0]</span>, "<span class="hljs-selector-tag">mypassword</span>", 24*3600)
+<span class="hljs-selector-tag">true</span>
+&gt; <span class="hljs-selector-tag">eth</span><span class="hljs-selector-class">.getBalance</span>(<span class="hljs-selector-tag">eth</span><span class="hljs-selector-class">.accounts</span><span class="hljs-selector-attr">[0]</span>)
+1000000000000000000
+</code></pre>
+<p>Ready to go! If some of these two are not working for you, check the steps
+above and make sure you’ve completed them correctly. Now run <code>truffle migrate --reset</code>. This time it will take longer to complete, as we’re connecting to the
+actual network and not one simulated by testrpc. Once it completes, you can
+interact with the contract using the same approach as before.</p>
+<p>The testnet-deployed version of ProofOfExistence3 can be found at the address
+0xcaf216d1975f75ab3fed520e1e3325dac3e79e05. (Feel free to interact with it and
+send your proofs!)</p>
+<p>I’ll leave the details on how to deploy to the live network to the reader. You
+should only do this once you’ve extensively tested your contracts in simulated
+and test networks. Remember <a href="https://blog.ethereum.org/2016/06/17/critical-update-re-dao-vulnerability/">any programming error on the mainnet can result in monetary loss</a>!</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="test-environment.html">← Setting up your test environment</a><a class="docs-next button" href="secure-contract.html">Writing a secure contract →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/symbol-zeppelin.png" alt="OpenZeppelin" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" href="https://github.com/OpenZeppelin/zeppelin-solidity" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Smart Contract Solutions</section></footer></div><script>
+              (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+              })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+              ga('create', 'UA-85043059-1', 'auto');
+              ga('send', 'pageview');
+            </script></body></html>

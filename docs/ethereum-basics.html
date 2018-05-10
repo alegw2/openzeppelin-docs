@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Ethereum basics · OpenZeppelin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta property="og:title" content="Ethereum basics · OpenZeppelin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://openzeppelin.org/index.html"/><meta property="og:description" content="## Ethereum"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,200,300,400,500,700,400italic,700italic"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible doc"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/logo-zeppelin.png" alt="OpenZeppelin"/><h2 class="headerTitle">OpenZeppelin</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/start-here.html" target="_self">Get Started</a></li><li class=""><a href="https://github.com/OpenZeppelin/openzeppelin-solidity/" target="_self">GitHub</a></li><li class=""><a href="https://openzeppelin.org/api/docs/crowdsale_Crowdsale.html" target="_self">Code Reference</a></li><li class=""><a href="https://zeppelinos.org/" target="_self">ZeppelinOS</a></li><li class=""><a href="https://slack.openzeppelin.org/" target="_self">Chat</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>STEP-BY-STEP GUIDE FOR DEVELOPERS</span></h2></div><div class="navGroups"><div class="navGroup navGroupActive"><h3>OPENZEPPELIN</h3><ul><li class="navListItem"><a class="navItem" href="/docs/about-openzeppelin.html">About OpenZeppelin</a></li></ul></div><div class="navGroup navGroupActive"><h3>STEP-BY-STEP GUIDE FOR DEVELOPERS</h3><ul><li class="navListItem"><a class="navItem" href="/docs/start-here.html">Start here</a></li><li class="navListItem"><a class="navItem" href="/docs/cryptocurrency-basics.html">Cryptocurrency basics</a></li><li class="navListItem navListItemActive"><a class="navItem navItemActive" href="/docs/ethereum-basics.html">Ethereum basics</a></li><li class="navListItem"><a class="navItem" href="/docs/test-environment.html">Setting up your test environment</a></li><li class="navListItem"><a class="navItem" href="/docs/first-contract.html">Writing your first contract</a></li><li class="navListItem"><a class="navItem" href="/docs/secure-contract.html">Writing a secure contract</a></li><li class="navListItem"><a class="navItem" href="/docs/using-web3.html">Using web3</a></li><li class="navListItem"><a class="navItem" href="/docs/next-steps.html">Next Steps</a></li></ul></div><div class="navGroup navGroupActive"><h3>SECURITY REFERENCE</h3><ul><li class="navListItem"><a class="navItem" href="/docs/principles.html">Principles</a></li><li class="navListItem"><a class="navItem" href="/docs/code-patterns.html">Code patterns</a></li><li class="navListItem"><a class="navItem" href="/docs/system-architecture.html">System architecture</a></li><li class="navListItem"><a class="navItem" href="/docs/vulnerabilities.html">Types of vulnerabilities</a></li></ul></div></div></section></div><script>
+          var toggler = document.getElementById('navToggler');
+          var nav = document.getElementById('docsNav');
+          toggler.onclick = function() {
+            nav.classList.toggle('docsSliderActive');
+          };
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1>Ethereum basics</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="ethereum"></a><a href="#ethereum" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Ethereum</h2>
+<p>Ethereum is an open-source public platform, distributed and based on blockchain
+technology, to run applications without censorship or third-party
+interference.</p>
+<h2><a class="anchor" aria-hidden="true" id="the-ethereum-virtual-machine"></a><a href="#the-ethereum-virtual-machine" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>The Ethereum Virtual Machine</h2>
+<p>Ethereum was designed as a smart contract platform. Its origin is actually
+linked to a critique made by Vitalik Buterin on bitcoin as a very limited smart
+contract platform. The <a href="http://gavwood.com/Paper.pdf">Ethereum Virtual Machine
+(EVM)</a> is where smart contracts run in Ethereum.
+It provides a more expressive and complete language than bitcoin for scripting.
+In fact, it is a <a href="https://github.com/ethereum/wiki/wiki/White-Paper#computation-and-turing-completeness">Turing Complete</a>
+programming language.  A good metaphor is that the EVM is a distributed global
+computer where all smart contracts are executed.</p>
+<h2><a class="anchor" aria-hidden="true" id="gas"></a><a href="#gas" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Gas</h2>
+<p>Since smart contracts run on the EVM, whose every single operation is executed
+by every node in the network, there must be a mechanism to limit the
+resources used by each contract. Otherwise, it could starve the whole network’s
+computing power. This is why gas exists – it fixes a cost for every
+instruction, like data reads and writes, expensive computations like cryptographic primitives,
+making calls (sending messages) to other contracts, etc.</p>
+<p>Each gas unit consumed by a transaction must be paid for in ether,
+based on a gas/ether price which changes dynamically. This price
+is deducted from the Ethereum account sending the transaction. Transactions
+also have a gas limit parameter that is an upper bound on how much gas the
+transaction can consume, and is used as a safe-guard against programming errors
+that could deplete an account’s funds.</p>
+<p>The fee paid to execute a transaction is calculated by multiplying the gas
+cost and the gas price (the resulting fee is paid in ETH). You can set the gas
+price for your transaction to any value, but if the gas price is too low,
+no one is going to execute your code.</p>
+<p>Every transaction is sent to the network with a gas budget. If it runs out,
+the transaction will fail but will still get mined into the blockchain.</p>
+<p>You can read more about gas
+<a href="https://ethereum.gitbooks.io/frontier-guide/content/costs.html">here</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="accounts"></a><a href="#accounts" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Accounts</h2>
+<p>Every account is identified by an address. There are two kinds of accounts
+sharing the same address space: external accounts,
+controlled by public-private key pairs, commonly owned by people to store ETH,
+and have contract accounts, controlled by the code that they're stored with.
+The most important difference between these two is that only external accounts
+can initiate transactions.</p>
+<h2><a class="anchor" aria-hidden="true" id="transactions"></a><a href="#transactions" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Transactions</h2>
+<p>A transaction is a message sent from one account to another account. You can
+send a transaction to another external account in order to transfer ETH. If the
+target account is a contract account, its code will be executed as well. Note
+that every transaction that involves code execution will be executed on all
+nodes of the network. Furthermore, every code run, or transaction execution,
+will be recorded in the Ethereum blockchain.</p>
+<h2><a class="anchor" aria-hidden="true" id="solidity"></a><a href="#solidity" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Solidity</h2>
+<p>Solidity is a contract-oriented high-level language, with similar syntax to
+JavaScript. It is statically typed, supports inheritance, libraries and complex
+user-defined types. It compiles to EVM assembly, which is run by the nodes.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="cryptocurrency-basics.html">← Cryptocurrency basics</a><a class="docs-next button" href="test-environment.html">Setting up your test environment →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/symbol-zeppelin.png" alt="OpenZeppelin" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" href="https://github.com/OpenZeppelin/zeppelin-solidity" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Smart Contract Solutions</section></footer></div><script>
+              (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+              })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+              ga('create', 'UA-85043059-1', 'auto');
+              ga('send', 'pageview');
+            </script></body></html>

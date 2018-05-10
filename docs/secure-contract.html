@@ -1,0 +1,431 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Writing a secure contract · OpenZeppelin</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta property="og:title" content="Writing a secure contract · OpenZeppelin"/><meta property="og:type" content="website"/><meta property="og:url" content="https://openzeppelin.org/index.html"/><meta property="og:description" content="Emin Gün Sirer said it well: [smart contracts are pretty difficult to get right](http://hackingdistributed.com/2016/07/13/reentrancy-woes/)."/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/img/favicon.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,200,300,400,500,700,400italic,700italic"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><link rel="stylesheet" href="/css/main.css"/></head><body class="sideNavVisible doc"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/logo-zeppelin.png" alt="OpenZeppelin"/><h2 class="headerTitle">OpenZeppelin</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/start-here.html" target="_self">Get Started</a></li><li class=""><a href="https://github.com/OpenZeppelin/openzeppelin-solidity/" target="_self">GitHub</a></li><li class=""><a href="https://openzeppelin.org/api/docs/crowdsale_Crowdsale.html" target="_self">Code Reference</a></li><li class=""><a href="https://zeppelinos.org/" target="_self">ZeppelinOS</a></li><li class=""><a href="https://slack.openzeppelin.org/" target="_self">Chat</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>STEP-BY-STEP GUIDE FOR DEVELOPERS</span></h2></div><div class="navGroups"><div class="navGroup navGroupActive"><h3>OPENZEPPELIN</h3><ul><li class="navListItem"><a class="navItem" href="/docs/about-openzeppelin.html">About OpenZeppelin</a></li></ul></div><div class="navGroup navGroupActive"><h3>STEP-BY-STEP GUIDE FOR DEVELOPERS</h3><ul><li class="navListItem"><a class="navItem" href="/docs/start-here.html">Start here</a></li><li class="navListItem"><a class="navItem" href="/docs/cryptocurrency-basics.html">Cryptocurrency basics</a></li><li class="navListItem"><a class="navItem" href="/docs/ethereum-basics.html">Ethereum basics</a></li><li class="navListItem"><a class="navItem" href="/docs/test-environment.html">Setting up your test environment</a></li><li class="navListItem"><a class="navItem" href="/docs/first-contract.html">Writing your first contract</a></li><li class="navListItem navListItemActive"><a class="navItem navItemActive" href="/docs/secure-contract.html">Writing a secure contract</a></li><li class="navListItem"><a class="navItem" href="/docs/using-web3.html">Using web3</a></li><li class="navListItem"><a class="navItem" href="/docs/next-steps.html">Next Steps</a></li></ul></div><div class="navGroup navGroupActive"><h3>SECURITY REFERENCE</h3><ul><li class="navListItem"><a class="navItem" href="/docs/principles.html">Principles</a></li><li class="navListItem"><a class="navItem" href="/docs/code-patterns.html">Code patterns</a></li><li class="navListItem"><a class="navItem" href="/docs/system-architecture.html">System architecture</a></li><li class="navListItem"><a class="navItem" href="/docs/vulnerabilities.html">Types of vulnerabilities</a></li></ul></div></div></section></div><script>
+          var toggler = document.getElementById('navToggler');
+          var nav = document.getElementById('docsNav');
+          toggler.onclick = function() {
+            nav.classList.toggle('docsSliderActive');
+          };
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1>Writing a secure contract</h1></header><article><div><span><p>Emin Gün Sirer said it well: <a href="http://hackingdistributed.com/2016/07/13/reentrancy-woes/">smart contracts are pretty difficult to get right</a>.
+This section will take you through problems that typically arise when beginner developers start
+writing smart contract code.</p>
+<h2><a class="anchor" aria-hidden="true" id="fail-as-early-and-loudly-as-possible"></a><a href="#fail-as-early-and-loudly-as-possible" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fail as early and loudly as possible</h2>
+<p>A simple yet powerful programming
+good practice is to <a href="https://oncodingstyle.blogspot.com.ar/2008/10/fail-early-fail-loudly.html">make your code fail as promptly as possible</a>. And be loud about it. Let’s see an example of a function that behaves timidly:</p>
+<pre><code class="hljs"><span class="hljs-comment">// UNSAFE CODE, DO NOT USE!</span>
+contract BadFailEarly {
+  <span class="hljs-keyword">uint</span> constant DEFAULT_SALARY = <span class="hljs-number">50000</span>;
+  mapping(string =&gt; <span class="hljs-keyword">uint</span>) nameToSalary;
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSalary</span><span class="hljs-params">(string name)</span> <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> <span class="hljs-params">(uint)</span> </span>{
+    <span class="hljs-keyword">if</span> (bytes(name).length != <span class="hljs-number">0</span> &amp;&amp; nameToSalary[name] != <span class="hljs-number">0</span>) {
+      <span class="hljs-keyword">return</span> nameToSalary[name];
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">return</span> DEFAULT_SALARY;
+    }
+  }
+}
+</code></pre>
+<p>We want to avoid a contract failing silently, or continuing execution in an
+unstable or inconsistent state. The function getSalary is checking for
+conditions before returning the stored salary, which is a good thing. The
+problem is, in case those conditions are not met, a default value is returned.
+This could hide an error from the caller. This is an extreme case, but this
+kind of programming is very common, and normally arises from fear of errors
+breaking our app. Truth is, the sooner we fail, the easier it will be to find
+the problem. If we hide errors, they can propagate to other parts of the code
+and cause inconsistencies which are difficult to trace. Here's a more correct
+approach, that also takes advantage of another programming best practice:</p>
+<h2><a class="anchor" aria-hidden="true" id="separate-conditionals-to-easily-identify-which-fails"></a><a href="#separate-conditionals-to-easily-identify-which-fails" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Separate conditionals to easily identify which fails</h2>
+<pre><code class="hljs">contract GoodFailEarly {
+  mapping(<span class="hljs-function"><span class="hljs-params">string</span> =&gt;</span> uint) nameToSalary;
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getSalary</span>(<span class="hljs-params">string name</span>) <span class="hljs-title">constant</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint</span>) </span>{
+    <span class="hljs-keyword">if</span> (bytes(name).length == <span class="hljs-number">0</span>) <span class="hljs-keyword">throw</span>;    
+    <span class="hljs-keyword">if</span> (nameToSalary[name] == <span class="hljs-number">0</span>) <span class="hljs-keyword">throw</span>;
+    
+    <span class="hljs-keyword">return</span> nameToSalary[name];
+  }
+}
+</code></pre>
+<p>Note that some of these checks (especially those depending on internal state)
+can be implemented via Function Modifiers.</p>
+<h2><a class="anchor" aria-hidden="true" id="favor-pull-over-push-payments"></a><a href="#favor-pull-over-push-payments" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Favor pull over push payments</h2>
+<p>Every ether transfer implies potential code execution. The receiving address
+can implement a <a href="https://solidity.readthedocs.io/en/latest/contracts.html#fallback-function">fallback function</a>
+that can throw an error. Thus, we should
+never trust that a send call will execute without error. A solution: our
+contracts should <a href="https://github.com/ethereum/wiki/wiki/Safety#favor-pull-over-push-for-external-calls">favor pull over push</a>
+for payments. Take a look at this innocent-looking code for a bidding function:</p>
+<pre><code class="hljs"><span class="hljs-comment">// UNSAFE CODE, DO NOT USE!</span>
+contract BadPushPayments {
+  address highestBidder;
+  <span class="hljs-keyword">uint</span> highestBid;
+ 
+  <span class="hljs-function">function <span class="hljs-title">bid</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">if</span> (msg.<span class="hljs-keyword">value</span> &lt; highestBid) <span class="hljs-keyword">throw</span>;
+    <span class="hljs-keyword">if</span> (highestBidder != <span class="hljs-number">0</span>) {
+      <span class="hljs-comment">// return bid to previous winner</span>
+      <span class="hljs-keyword">if</span> (!highestBidder.send(highestBid)) {
+        <span class="hljs-keyword">throw</span>;
+      }
+    }
+    highestBidder = msg.sender;
+    highestBid = msg.<span class="hljs-keyword">value</span>;
+  }
+}
+</code></pre>
+<p>Note that the contract calls the <code>send</code> function and checks its return value,
+which seems reasonable. But it calls <code>send</code> in the middle of a function, which is
+unsafe. Why? Remember that, as stated above, <code>send</code> can trigger the execution of
+code in another contract.</p>
+<p>Imagine someone bids from an address which simply throws an error every time
+someone sends money to it. What happens when someone else tries to outbid that?
+The <code>send</code> call will always fail, bubbling up and making bid throw an exception.
+A function call that ends in error leaves the state unchanged (any changes made
+are rolled back). That means nobody else can bid, and the contract is broken.</p>
+<p>The easiest solution is to separate payments into a different function, and
+have users request (pull) funds independently of the rest of the contract
+logic:</p>
+<pre><code class="hljs">contract GoodPullPayments {
+  <span class="hljs-keyword">address </span>highestBidder<span class="hljs-comment">;</span>
+  uint highestBid<span class="hljs-comment">;</span>
+  mapping(<span class="hljs-keyword">address </span>=&gt; uint) refunds<span class="hljs-comment">;</span>
+  
+  function <span class="hljs-keyword">bid() </span><span class="hljs-keyword">external </span>{
+    if (msg.value &lt; highestBid) throw<span class="hljs-comment">;</span>
+    
+    if (highestBidder != <span class="hljs-number">0</span>) {
+      refunds[highestBidder] += highestBid<span class="hljs-comment">;</span>
+    }
+    
+    highestBidder = msg.sender<span class="hljs-comment">;</span>
+    highestBid = msg.value<span class="hljs-comment">;</span>
+  }
+  
+  function withdrawBid() <span class="hljs-keyword">external </span>{
+    uint refund = refunds[msg.sender]<span class="hljs-comment">;</span>
+    refunds[msg.sender] = <span class="hljs-number">0</span><span class="hljs-comment">;</span>
+    if (!msg.sender.send(refund)) {
+      refunds[msg.sender] = refund<span class="hljs-comment">;</span>
+    }
+  }
+}
+</code></pre>
+<p>This time, we use a mapping to store refund values for each outbid bidder, and
+provide a function to withdraw their funds. In case of a problem in the send
+call, only that bidder is affected. This is a simple pattern that solves many
+other problems (such as <a href="/docs/vulnerabilities.html">reentrancy</a>), so remember: when sending ether,
+favor pull over push payments.</p>
+<p>OpenZeppelin has
+<a href="https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/payment/PullPayment.sol">a contract you can inherit from to easily use this pattern</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="order-your-function-code-conditions-then-actions-then-interactions"></a><a href="#order-your-function-code-conditions-then-actions-then-interactions" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Order your function code: conditions, then actions, then interactions</h2>
+<p>As an extension of the fail-early principle, a good practice is to structure
+all your functions as follows: first, check all the pre-conditions; then, make
+changes to your contract’s state; and finally, interact with other contracts.</p>
+<p>Conditions, actions, interactions. Sticking to this function structure will
+save you lots of problems. Let’s see an example of a function using this
+pattern, <a href="https://solidity.readthedocs.io/en/latest/solidity-by-example.html">taken from the Solidity docs</a>.</p>
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">auctionEnd</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-comment">// 1. Conditions</span>
+  <span class="hljs-keyword">if</span> (now &lt;= auctionStart + biddingTime)
+    <span class="hljs-keyword">throw</span>; <span class="hljs-comment">// auction did not yet end</span>
+  <span class="hljs-keyword">if</span> (ended)
+    <span class="hljs-keyword">throw</span>; <span class="hljs-comment">// this function has already been called</span>
+
+  <span class="hljs-comment">// 2. Actions</span>
+  ended = <span class="hljs-literal">true</span>;
+  AuctionEnded(highestBidder, highestBid);
+
+  <span class="hljs-comment">// 3. Interactions</span>
+  <span class="hljs-keyword">if</span> (!beneficiary.send(highestBid))
+    <span class="hljs-keyword">throw</span>;
+  }
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="be-aware-of-the-platform-limits"></a><a href="#be-aware-of-the-platform-limits" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Be aware of the platform limits</h2>
+<p>The EVM has a lot of hard limits on what our contracts can do. These are
+platform-level security considerations, but may threaten your particular
+contract’s security if you don’t know about them. Let’s take a look at the
+following innocent-looking employee bonus management code:</p>
+<pre><code class="hljs"><span class="hljs-comment">// UNSAFE CODE, DO NOT USE!</span>
+contract BadArrayUse {
+  
+  address[] employees;
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">payBonus</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; employees.length; i++) {
+      address employee = employees[i];
+      <span class="hljs-keyword">uint</span> bonus = calculateBonus(employee);
+      employee.send(bonus);
+    }     
+  }
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">calculateBonus</span><span class="hljs-params">(address employee)</span> <span class="hljs-title">returns</span> <span class="hljs-params">(uint)</span> </span>{
+    <span class="hljs-comment">// some expensive computation ...</span>
+  }
+}
+</code></pre>
+<p>Read the code: it’s pretty straightforward and seems correct. If you knew the
+platform limits well, though, you'd discover 3 potential problems.</p>
+<p>The first is that the type of <code>i</code> will be <code>uint8</code>, because this is the
+smallest type that is required to hold the value 0. If the array has more than
+255 elements, the loop will not terminate, resulting in gas depletion. Better
+use the explicit type uint for no surprises and higher limits. Avoid declaring
+variables using var if possible. Let’s fix that:</p>
+<pre><code class="hljs"><span class="hljs-comment">// STILL UNSAFE CODE, DO NOT USE!</span>
+contract BadArrayUse {
+  
+  address[] employees;
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">payBonus</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">uint</span> i = <span class="hljs-number">0</span>; i &lt; employees.length; i++) {
+      address employee = employees[i];
+      <span class="hljs-keyword">uint</span> bonus = calculateBonus(employee);
+      employee.send(bonus);
+    }     
+  }
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">calculateBonus</span><span class="hljs-params">(address employee)</span> <span class="hljs-title">returns</span> <span class="hljs-params">(uint)</span> </span>{
+    <span class="hljs-comment">// some expensive computation ...</span>
+  }
+}
+</code></pre>
+<p>The second thing you should consider is the gas limit. Gas is Ethereum’s
+mechanism to charge for network resources. Every function call that modifies
+state has a gas cost. Imagine calculateBonus calculates the bonus for each
+employee based on some complex computation like calculating the profit over
+many projects. This would spend a lot of gas, which could easily reach the
+transaction’s or block’s gas limit. If a transaction reaches the gas limit, all
+changes will be reverted but the fee is still paid. Be aware of variable gas
+costs when using loops. Let’s optimize the contract by separating the bonus
+calculation from the for loop. Please note that this still has the issue that
+as the employees array grows, the gas cost grows.</p>
+<pre><code class="hljs">// UNSAFE <span class="hljs-meta">CODE</span>, DO NOT USE!
+<span class="hljs-symbol">contract</span> <span class="hljs-keyword">BadArrayUse </span>{
+  
+  <span class="hljs-keyword">address[] </span>employees<span class="hljs-comment">;</span>
+  mapping(<span class="hljs-keyword">address </span>=&gt; uint) <span class="hljs-keyword">bonuses; </span> 
+  
+  <span class="hljs-meta">function</span> payBonus() {
+    for (uint i = <span class="hljs-number">0</span><span class="hljs-comment">; i &lt; employees.length; i++) {</span>
+      <span class="hljs-keyword">address </span>employee = employees[i]<span class="hljs-comment">;</span>
+      uint <span class="hljs-keyword">bonus </span>= <span class="hljs-keyword">bonuses[employee];
+</span>      employee.send(<span class="hljs-keyword">bonus);
+</span>    }     
+  }
+  
+  <span class="hljs-meta">function</span> calculateBonus(<span class="hljs-keyword">address </span>employee) returns (uint) {
+    uint <span class="hljs-keyword">bonus </span>= <span class="hljs-number">0</span><span class="hljs-comment">;</span>
+    // some expensive computation modifying the <span class="hljs-keyword">bonus...
+</span>    <span class="hljs-keyword">bonuses[employee] </span>= <span class="hljs-keyword">bonus;
+</span>  }
+}
+</code></pre>
+<p>The EVM’s call stack has a hard limit of 1024. <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-150.md">EIP150</a> fixed
+a related vulnerability by reducing the amount of gas each
+recursive call gets, but you should still be aware of the limit for your code
+to work as intended.</p>
+<p>Here’s the final version of the code that fixes all these issues:</p>
+<pre><code class="hljs">import <span class="hljs-string">'./PullPayment.sol'</span>;
+contract GoodArrayUse is PullPayment {
+  address[] employees;
+  mapping(address =&gt; <span class="hljs-keyword">uint</span>) bonuses;
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">payBonus</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">uint</span> i = <span class="hljs-number">0</span>; i &lt; employees.length; i++) {
+      address employee = employees[i];
+      <span class="hljs-keyword">uint</span> bonus = bonuses[employee];
+      asyncSend(employee, bonus);
+    }
+  }
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">calculateBonus</span><span class="hljs-params">(address employee)</span> <span class="hljs-title">returns</span> <span class="hljs-params">(uint)</span> </span>{
+    <span class="hljs-keyword">uint</span> bonus = <span class="hljs-number">0</span>;
+    <span class="hljs-comment">// some expensive computation...</span>
+    bonuses[employee] = bonus;
+  }
+}
+</code></pre>
+<p>To sum up, be sure to remember about (1) limits in the types you’re using, (2)
+limits in the gas costs of your contract, and (3) the call stack depth limit.</p>
+<h2><a class="anchor" aria-hidden="true" id="write-tests"></a><a href="#write-tests" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Write tests</h2>
+<p>Writing tests is a lot of work, but will save you
+from <a href="https://en.wikipedia.org/wiki/Software_regression">regression problems</a>. A
+regression bug appears when a previously correct component gets broken based on
+a recent change.</p>
+<p>For more information about testing, check out <a href="https://blog.zeppelin.solutions/onward-with-ethereum-smart-contract-security-97a827e47702">Truffle’s guide</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="implement-fault-tolerance-and-automatic-bug-bounties"></a><a href="#implement-fault-tolerance-and-automatic-bug-bounties" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implement fault tolerance and automatic bug bounties</h2>
+<p>Read <a href="https://medium.com/@peterborah/we-need-fault-tolerant-smart-contracts-ec1b56596dbc">this excellent piece by Peter Borah</a>.</p>
+<p>Code reviews and security audits are not enough to be safe. Our code needs to be ready for the worst. In case there is a vulnerability in our smart contract, there should be a way for it to safely recover. Not only that, but we should try to find those vulnerabilities as early as possible. That’s where automatic bug bounties built into our contract can help.</p>
+<p>Let’s take a look at this simple implementation of an automatic bug bounty for a hypothetical Token contract:</p>
+<pre><code class="hljs"><span class="hljs-meta"><span class="hljs-meta-keyword">import</span> './PullPayment.sol';</span>
+<span class="hljs-meta"><span class="hljs-meta-keyword">import</span> './Token.sol';</span>
+contract Bounty <span class="hljs-keyword">is</span> PullPayment {
+  bool <span class="hljs-keyword">public</span> claimed;
+  mapping(address =&gt; address) <span class="hljs-keyword">public</span> researchers;
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">if</span> (claimed) <span class="hljs-keyword">throw</span>;
+  }
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createTarget</span><span class="hljs-params">()</span> <span class="hljs-title">returns</span><span class="hljs-params">(Token)</span> </span>{
+    Token target = <span class="hljs-keyword">new</span> Token(<span class="hljs-number">0</span>);
+    researchers[target] = msg.sender;
+    <span class="hljs-keyword">return</span> target;
+  }
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">claim</span><span class="hljs-params">(Token target)</span> </span>{
+    address researcher = researchers[target];
+    <span class="hljs-keyword">if</span> (researcher == <span class="hljs-number">0</span>) <span class="hljs-keyword">throw</span>;
+    
+    <span class="hljs-comment">// check Token contract invariants</span>
+    <span class="hljs-keyword">if</span> (target.totalSupply() == target.balance) {
+      <span class="hljs-keyword">throw</span>;
+    }
+    asyncSend(researcher, <span class="hljs-keyword">this</span>.balance);
+    claimed = <span class="hljs-literal">true</span>;
+  }
+}
+</code></pre>
+<p>As before, we’re using PullPayment to make our outgoing payments safe. This
+Bounty contract allows researchers to create copies of the Token contract we
+want audited. Anyone can contribute to the bug bounty by sending transactions
+to the Bounty contract’s address. If any researcher manages to corrupt his copy
+of the Token contract, making some invariant break (for example, in this case,
+making the total supply of tokens different from the Token’s balance), he’ll
+get the bounty reward. Once the bounty is claimed, the contract won’t accept
+any more funds (that nameless function is called the contract’s fallback
+function, and is executed every time the contract is sent money directly).</p>
+<p>As you can see, this has the nice property that it is a separate contract and
+requires no modification of our original Token contract. OpenZeppelin has a
+<a href="https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/Bounty.sol">full implementation here</a>.</p>
+<p>As for fault tolerance, we will need to modify our original contract to add
+extra safety mechanisms. A simple idea is to allow a contract’s curator to
+freeze the contract as an emergency mechanism. Let’s implement
+this behavior via inheritance:</p>
+<pre><code class="hljs">contract Stoppable {
+  address <span class="hljs-keyword">public</span> curator;
+  <span class="hljs-keyword">bool</span> <span class="hljs-keyword">public</span> stopped;
+  modifier stopInEmergency { <span class="hljs-keyword">if</span> (!stopped) _; }
+  modifier onlyInEmergency { <span class="hljs-keyword">if</span> (stopped) _; }
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Stoppable</span><span class="hljs-params">(address _curator)</span> </span>{
+    <span class="hljs-keyword">if</span> (_curator == <span class="hljs-number">0</span>) <span class="hljs-keyword">throw</span>;
+    curator = _curator;
+  }
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">emergencyStop</span><span class="hljs-params">()</span> <span class="hljs-title">external</span> </span>{
+    <span class="hljs-keyword">if</span> (msg.sender != curator) <span class="hljs-keyword">throw</span>;
+    stopped = <span class="hljs-keyword">true</span>;
+  }
+}
+</code></pre>
+<p>Stoppable allows one to specify a curator address that can stop the contract.
+What does “stopping the contract” mean? That’s to be defined by the child
+contract inheriting from Stoppable by using the function modifiers
+<code>stopInEmergency</code> and <code>onlyInEmergency</code>. Let’s see an example:</p>
+<pre><code class="hljs"><span class="hljs-meta"><span class="hljs-meta-keyword">import</span> './PullPayment.sol';</span>
+<span class="hljs-meta"><span class="hljs-meta-keyword">import</span> './Stoppable.sol';</span>
+contract StoppableBid <span class="hljs-keyword">is</span> Stoppable, PullPayment {
+  address <span class="hljs-keyword">public</span> highestBidder;
+  uint <span class="hljs-keyword">public</span> highestBid;
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">StoppableBid</span><span class="hljs-params">(address _curator)</span>
+    <span class="hljs-title">Stoppable</span><span class="hljs-params">(_curator)</span>
+    <span class="hljs-title">PullPayment</span><span class="hljs-params">()</span> </span>{}
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bid</span><span class="hljs-params">()</span> <span class="hljs-title">external</span> <span class="hljs-title">stopInEmergency</span> </span>{
+    <span class="hljs-keyword">if</span> (msg.value &lt;= highestBid) <span class="hljs-keyword">throw</span>;
+    
+    <span class="hljs-keyword">if</span> (highestBidder != <span class="hljs-number">0</span>) {
+      asyncSend(highestBidder, highestBid);
+    }
+    highestBidder = msg.sender;
+    highestBid = msg.value;
+  }
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">withdraw</span><span class="hljs-params">()</span> <span class="hljs-title">onlyInEmergency</span> </span>{
+    suicide(curator);
+  }
+}
+</code></pre>
+<p>In this toy example, the bid can now be stopped by a curator, defined when the
+contract is created. While the StoppableBid is in normal mode, only the bid
+function can be called. If something weird happens and the contract is in an
+inconsistent state, the curator can step in and activate the emergency state.
+This makes the bid function uncallable, and allows the function withdraw to
+work.</p>
+<p>In this case, emergency mode would only allow the curator to destroy the
+contract and recover the funds, but in a real case, recovery logic could be
+more complex (for example, returning funds to their owners). Here's the
+OpenZeppelin <a href="https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/lifecycle/Pausable.sol">implementation of Stoppable</a>,
+that we renamed Pausable.</p>
+<h2><a class="anchor" aria-hidden="true" id="limit-the-amount-of-funds-deposited"></a><a href="#limit-the-amount-of-funds-deposited" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Limit the amount of funds deposited</h2>
+<p>Another way to protect our smart contracts from attacks is to limit their
+scope. Attackers will most probably target high-profile contracts managing
+millions of dollars. Not all smart contracts need to have such high stakes.
+Especially if we’re conducting experiments. In such cases, it might be useful
+to limit the amount of funds our contract accepts. This is as simple as a hard
+limit on the balance of the contract’s address.</p>
+<p>Here’s a simplified example on how to do this:</p>
+<pre><code class="hljs">contract LimitFunds {
+  
+  uint LIMIT = <span class="hljs-number">5000</span>;
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">throw</span>; }
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">deposit</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.balance &gt; LIMIT) <span class="hljs-keyword">throw</span>;
+    ...
+  }
+}
+</code></pre>
+<p>The short fallback function will reject any direct payments to the contract.
+The deposit function will first check if the contract’s balance exceeds the
+desired limit, or throw an exception. More interesting things like dynamic or
+managed limits are easy to implement too.</p>
+<h2><a class="anchor" aria-hidden="true" id="write-simple-and-modular-code"></a><a href="#write-simple-and-modular-code" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Write simple and modular code</h2>
+<p>Security is a match between our intention and what our code actually does. This
+is very hard to verify, especially if the codebase is huge and messy. That’s why
+it’s important to write simple and modular code.</p>
+<p>This means, functions should be as short as possible, code dependencies should
+be reduced to the minimum, and files should be as small as possible, separating
+independent logic into modules, each with a single responsibility.</p>
+<p>Taking care when naming is also one of the best ways to express our intention when coding. Think
+a lot about the names you chose, to make your code as clear as possible.</p>
+<p>Let’s study an example of bad naming of
+<a href="https://solidity.readthedocs.io/en/latest/contracts.html#events">Events</a>.
+<a href="https://github.com/slockit/DAO/blob/develop/DAO.sol#L618-L691">This function from the DAO</a> is too long
+and complex. Try to keep your functions much shorter, say, up to 30 or 40 lines of code max.
+Ideally, you should be able to read functions and understand what they do in
+less than a minute. Another problem is the bad naming for the event Transfer in
+line <a href="https://github.com/slockit/DAO/blob/develop/DAO.sol#L685">685</a>.
+The name differs from <a href="https://github.com/slockit/DAO/blob/develop/DAO.sol#L755">a function called transfer</a>
+by only 1 character!  This is inviting confusion for everyone. In general, the recommended naming for
+events is that they should start with “Log”. In this case, a better name would be LogTransfer.</p>
+<p>Remember, write your contracts as simple, modular, and well-named as possible.
+This will greatly facilitate others and yourself in auditing your code.</p>
+<h2><a class="anchor" aria-hidden="true" id="don-t-write-all-your-code-from-scratch"></a><a href="#don-t-write-all-your-code-from-scratch" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Don't write all your code from scratch</h2>
+<p>Finally, as the old adage reads: <a href="https://security.stackexchange.com/questions/18197/why-shouldnt-we-roll-our-own">“Don’t roll your own
+crypto”</a>.
+This especially applies to smart contract code. You’re dealing with money, your code and data
+is public, and you’re running in a new and experimental platform. The stakes
+are high and the chances to mess-up are everywhere.</p>
+<p>These practices help secure our smart contracts. But ultimately, we should
+create better developer tools to build smart contracts. There are some
+interesting initiatives including <a href="https://www.youtube.com/watch?v=H2uwUdzVD9I">better type systems</a>,
+<a href="https://blog.ethereum.org/2015/12/24/understanding-serenity-part-i-abstraction/">Serenity Abstractions</a>,
+and the <a href="https://www.rsk.co/">Rootstock platform</a>.</p>
+<p>There’s lots of good and secure code already written and frameworks are
+starting to appear. We’ve baked the industry best practices into our
+<a href="https://github.com/OpenZeppelin/openzeppelin-solidity">OpenZeppelin Solidity repo</a>,
+and we recommend you use it as the building blocks for your more complex applications.</p>
+<h2><a class="anchor" aria-hidden="true" id="remember"></a><a href="#remember" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Remember!</h2>
+<p>Before ever writing code that handles real money, read more about the <a href="/docs/vulnerabilities.html">types of vulnerabilities</a>,
+and ask for help at the <a href="https://slack.openzeppelin.org/">OpenZeppelin community channel</a>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="first-contract.html">← Writing your first contract</a><a class="docs-next button" href="using-web3.html">Using web3 →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/symbol-zeppelin.png" alt="OpenZeppelin" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/doc1.html">Getting Started (or other categories)</a><a href="/docs/en/doc2.html">Guides (or other categories)</a><a href="/docs/en/doc3.html">API Reference (or other categories)</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://discordapp.com/">Project Chat</a><a href="https://twitter.com/" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="/blog">Blog</a><a href="https://github.com/">GitHub</a><a class="github-button" href="https://github.com/OpenZeppelin/zeppelin-solidity" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Smart Contract Solutions</section></footer></div><script>
+              (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+              })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+              ga('create', 'UA-85043059-1', 'auto');
+              ga('send', 'pageview');
+            </script></body></html>
