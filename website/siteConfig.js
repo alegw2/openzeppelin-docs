@@ -26,7 +26,7 @@ const siteConfig = {
     },
     {
       href: 'https://zeppelinos.org/',
-      label: 'zeppelinOS',
+      label: 'ZeppelinOS',
     },
     {
       href: 'https://slack.openzeppelin.org/',
